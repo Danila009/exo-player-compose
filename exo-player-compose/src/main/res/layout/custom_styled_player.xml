@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.exoplayer2.ui.StyledPlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/cardview_dark_background"
+        app:controller_layout_id="@layout/custom_controller"
+        app:hide_on_touch="true"
+        app:resize_mode="fill"
+        app:show_timeout="5000"
+        app:use_controller="true"
+        android:layout_gravity="center"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="83dp"
+        android:layout_height="80dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/design_default_color_secondary"
+        tools:ignore="ObsoleteLayoutParam"
+        android:layout_gravity="center"/>
+
+</FrameLayout>

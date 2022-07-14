@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ExoPlayer-Compose</string>
+    <string name="video_title">Video title</string>
+    <string name="video_description">video_description</string>
+</resources>

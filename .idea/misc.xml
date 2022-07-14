@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/danbe/AndroidStudioProjects/ExoPlayerCompose/exo-player-compose/src/main/res/drawable/ic_ff.xml" value="0.1585" />
+        <entry key="..\:/Users/danbe/AndroidStudioProjects/ExoPlayerCompose/exo-player-compose/src/main/res/drawable/ic_skip_previous.xml" value="0.1585" />
+        <entry key="..\:/Users/danbe/AndroidStudioProjects/ExoPlayerCompose/exo-player-compose/src/main/res/drawable/is_rew.xml" value="0.1585" />
+        <entry key="..\:/Users/danbe/AndroidStudioProjects/ExoPlayerCompose/exo-player-compose/src/main/res/layout/custom_controller.xml" value="0.22" />
+        <entry key="..\:/Users/danbe/AndroidStudioProjects/ExoPlayerCompose/exo-player-compose/src/main/res/layout/custom_styled_player.xml" value="0.25" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
