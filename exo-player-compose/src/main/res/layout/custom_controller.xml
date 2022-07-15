@@ -34,6 +34,48 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <ImageView
+        android:id="@+id/speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_speed"
+        app:layout_constraintTop_toTopOf="@+id/subtitles"
+        app:layout_constraintBottom_toBottomOf="@+id/subtitles"
+        app:layout_constraintEnd_toStartOf="@+id/subtitles"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/subtitles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_subtitles_off"
+        app:layout_constraintTop_toTopOf="@+id/audio_track"
+        app:layout_constraintBottom_toBottomOf="@+id/audio_track"
+        app:layout_constraintEnd_toStartOf="@+id/audio_track"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/audio_track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_audio_track"
+        app:layout_constraintTop_toTopOf="@+id/menu"
+        app:layout_constraintBottom_toBottomOf="@+id/menu"
+        app:layout_constraintEnd_toStartOf="@+id/menu"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/ic_more"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/video_title"
+        app:layout_constraintBottom_toBottomOf="@+id/video_description"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
         android:id="@+id/exo_rew"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -114,6 +156,17 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:src="@drawable/ic_skip_next"
+        app:layout_constraintTop_toTopOf="@+id/fullscreen"
+        app:layout_constraintBottom_toBottomOf="@+id/fullscreen"
+        app:layout_constraintEnd_toStartOf="@+id/fullscreen"
+        tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/fullscreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:src="@drawable/ic_fullscreen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/exo_progress"
         tools:ignore="ContentDescription" />

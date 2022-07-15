@@ -67,7 +67,7 @@ fun ExoPlayer(
 }
 
 @Composable
-fun rememberExoPlayer():ExoPlayer {
+private fun rememberExoPlayer():ExoPlayer {
     val context = LocalContext.current
     return remember {
         ExoPlayer.Builder(context)
