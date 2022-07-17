@@ -1,4 +1,4 @@
-package com.example.exo_player_compose
+package com.example.exo_player_compose.exoPlayer.v1
 
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.exo_player_compose.common.ExoParameters
 import com.example.exo_player_compose.state.VideoPlayerPausePlayState
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -17,18 +18,17 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 @Composable
 fun ExoPlayer(
     modifier: Modifier = Modifier,
-    url: String,
-    exoPlayer: ExoPlayer = rememberExoPlayer(),
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE,
-    useController:Boolean = true
+    parameters: ExoParameters
 ) {
     val context = LocalContext.current
 
+    val exoPlayer = rememberExoPlayer()
+
     exoPlayer.apply {
-        setMediaItem(MediaItem.fromUri(url))
+        setMediaItem(MediaItem.fromUri(parameters.url))
         prepare()
 
-        when(statePlayPause){
+        when(parameters.statePlayPause){
             VideoPlayerPausePlayState.PAUSE -> pause()
             VideoPlayerPausePlayState.PLAY -> play()
         }
@@ -40,7 +40,7 @@ fun ExoPlayer(
             factory = {
                 StyledPlayerView(context).apply {
                     player = exoPlayer
-                    this.useController = useController
+                    this.useController = parameters.useController
 
                     layoutParams = FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,

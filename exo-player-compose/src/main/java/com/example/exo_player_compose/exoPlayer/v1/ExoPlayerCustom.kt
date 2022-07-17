@@ -1,23 +1,26 @@
-package com.example.exo_player_compose
+package com.example.exo_player_compose.exoPlayer.v1
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.PictureInPictureParams
 import android.content.Context
-import android.graphics.Color
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.material.BottomDrawerState
 import androidx.compose.material.BottomDrawerValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBottomDrawerState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.exo_player_compose.R
+import com.example.exo_player_compose.common.ExoCustomParameters
 import com.example.exo_player_compose.dialogs.AudioTrackDialog
 import com.example.exo_player_compose.dialogs.SpeedDialog
 import com.example.exo_player_compose.model.VideoExoPlayer
@@ -28,7 +31,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.DefaultTimeBar
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
@@ -56,33 +58,18 @@ private fun rememberExoPlayer():ExoPlayer {
     }
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun ExoPlayerCustom(
     modifier: Modifier = Modifier,
     url: String,
-    titleVideo:String = "",
-    descriptionVideo:String = "",
-    fullscreen:Boolean = false,
-    exoPlayer: ExoPlayer = rememberExoPlayer(),
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE,
-    useController:Boolean = true,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    progressBarUnplacedColor:Int = R.color.unplayed_color,
-    progressBarBufferedColor:Int = R.color.buffered_color,
-    progressBarScrubberColor:Int = Color.RED,
-    progressBarPlayedColor:Int = Color.RED,
-    onTitleClick:() -> Unit = {},
-    onDescriptionClick:() -> Unit = {},
-    onProgressBarVisibility:(Boolean) -> Unit = {},
-    onFullscreen:(Boolean) -> Unit  = {},
-    onMenuClick:(() -> Unit)? = null
+    parameters: ExoCustomParameters
 ) {
 
-    var audioTrackDialog by remember { mutableStateOf(false) }
-    var speedDialog by remember { mutableStateOf(false) }
+    val exoPlayer = rememberExoPlayer()
 
-    videoFullscreen = fullscreen
-    onFullscreen(videoFullscreen)
+    var audioTrackDialog by rememberSaveable { mutableStateOf(false) }
+    var speedDialog by rememberSaveable { mutableStateOf(false) }
 
     if (audioTrackDialog){
         AudioTrackDialog(
@@ -110,181 +97,116 @@ fun ExoPlayerCustom(
             }
         )
     }
+
+    LaunchedEffect(key1 = Unit, block = {
+        audioTrack(player = exoPlayer)
+
+        videoFullscreen = parameters.fullscreen
+        speed = parameters.speed
+        subtitle = parameters.subtitle
+        position = parameters.position
+
+        parameters.audioTrack = audioTrack
+    })
+
+    LaunchedEffect(key1 = subtitle, block = {
+        parameters.onSubtitle(subtitle)
+    })
+
+    LaunchedEffect(key1 = speed, block = {
+        parameters.onSpeed(speed)
+    })
+
+    LaunchedEffect(key1 = videoFullscreen, block = {
+        parameters.onFullscreen(videoFullscreen)
+    })
+
+    LaunchedEffect(key1 = trackSelector, block = {
+        parameters.trackSelector = trackSelector
+    })
 
     exoPlayer(
         exoPlayer = exoPlayer,
-        url = url,
-        statePlayPause = statePlayPause
+        parameters = parameters,
+        url = url
     )
 
-    DisposableEffect(
-        key1 = ExoPlayerAndroidView(
-            modifier = modifier,
-            exoPlayer = exoPlayer,
-            titleVideo = titleVideo,
-            descriptionVideo = descriptionVideo,
-            useController = useController,
-            resizeMode = resizeMode,
-            progressBarUnplacedColor = progressBarUnplacedColor,
-            progressBarBufferedColor = progressBarBufferedColor,
-            progressBarScrubberColor = progressBarScrubberColor,
-            progressBarPlayedColor = progressBarPlayedColor,
-            onTitleClick = onTitleClick,
-            onDescriptionClick = onDescriptionClick,
-            onProgressBarVisibility = onProgressBarVisibility,
-            onMenuClick = onMenuClick,
-            onFullscreen = {
-                videoFullscreen = it
-                onFullscreen(it)
-            },
-            onAudioTrackClick = {
-                audioTrackDialog = true
-            },
-            onSpeedClick = {
-                speedDialog = true
-            }
-        ),
-        effect = {
-            onDispose {
-                exoPlayer.release()
-            }
-        }
-    )
-}
-
-@Composable
-fun ExoPlayerCustom(
-    modifier: Modifier = Modifier,
-    videoList: List<VideoExoPlayer>,
-    fullscreen: Boolean = false,
-    repeat:Boolean = true,
-    exoPlayer: ExoPlayer = rememberExoPlayer(),
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE,
-    nextPreviousButtonPosition: NextPreviousButtonPosition = NextPreviousButtonPosition.BOTTOM,
-    useController:Boolean = true,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    progressBarUnplacedColor:Int = R.color.unplayed_color,
-    progressBarBufferedColor:Int = R.color.buffered_color,
-    progressBarScrubberColor:Int = Color.RED,
-    progressBarPlayedColor:Int = Color.RED,
-    onTitleClick:() -> Unit = {},
-    onDescriptionClick:() -> Unit = {},
-    onProgressBarVisibility:(Boolean) -> Unit = {},
-    onFullscreen:(Boolean) -> Unit  = {},
-    onMenuClick:(() -> Unit)? = null,
-    onVideoListPositionItem: (VideoExoPlayer) -> Unit = {}
-) {
-    var audioTrackDialog by remember { mutableStateOf(false) }
-    var speedDialog by remember { mutableStateOf(false) }
-
-    videoFullscreen = fullscreen
-    onFullscreen(videoFullscreen)
-
-    LaunchedEffect(key1 = position, block = {
-        if (position >= 0){
-            onVideoListPositionItem(videoList[position])
-        }
-    })
-
-    if (audioTrackDialog){
-        AudioTrackDialog(
-            audioTrack = audioTrack,
-            onDismissRequest = {
-                audioTrackDialog = false
-            },
-        ){ audioTrackItem ->
-            trackSelector?.let {
-                trackSelector!!.setParameters(
-                    trackSelector!!.buildUponParameters().setPreferredAudioLanguage(audioTrack[audioTrackItem.position])
-                )
-            }
-        }
-    }
-
-    if (speedDialog){
-        SpeedDialog(
-            onDismissRequest = { speedDialog = false },
-            onClick = {
-                speed = it
-                changeSpeed(
-                    player = exoPlayer
-                )
+    BottomDrawerExoPlayer(
+        drawerState = parameters.drawerState ?: rememberBottomDrawerState(BottomDrawerValue.Closed),
+        drawerContent = parameters.drawerContent
+    ){
+        DisposableEffect(
+            key1 = ExoPlayerAndroidView(
+                modifier = modifier,
+                exoPlayer = exoPlayer,
+                parameters = parameters,
+                onFullscreen = {
+                    videoFullscreen = it
+                    parameters.onFullscreen(it)
+                },
+                onAudioTrackClick = {
+                    audioTrackDialog = true
+                },
+                onSpeedClick = {
+                    speedDialog = true
+                }
+            ),
+            effect = {
+                onDispose {
+                    exoPlayer.release()
+                }
             }
         )
     }
-
-    DisposableEffect(
-        key1 = ExoPlayerAndroidView(
-            modifier = modifier,
-            videoList = videoList,
-            repeat = repeat,
-            exoPlayer = exoPlayer,
-            nextPreviousButtonPosition = nextPreviousButtonPosition,
-            statePlayPause = statePlayPause,
-            useController = useController,
-            resizeMode = resizeMode,
-            progressBarUnplacedColor = progressBarUnplacedColor,
-            progressBarBufferedColor = progressBarBufferedColor,
-            progressBarScrubberColor = progressBarScrubberColor,
-            progressBarPlayedColor = progressBarPlayedColor,
-            onTitleClick = onTitleClick,
-            onDescriptionClick = onDescriptionClick,
-            onProgressBarVisibility = onProgressBarVisibility,
-            onMenuClick = onMenuClick,
-            onFullscreen = {
-                videoFullscreen = it
-                onFullscreen(it)
-            },
-            onAudioTrackClick = {
-                audioTrackDialog = true
-            },
-            onSpeedClick = {
-                speedDialog = true
-            }
-        ),
-        effect = {
-            onDispose {
-                exoPlayer.release()
-            }
-        }
-    )
 }
 
 @ExperimentalMaterialApi
 @Composable
 fun ExoPlayerCustom(
     modifier: Modifier = Modifier,
+    parameters: ExoCustomParameters,
     videoList: List<VideoExoPlayer>,
-    fullscreen:Boolean = false,
-    drawerState:BottomDrawerState = rememberBottomDrawerState(initialValue = BottomDrawerValue.Closed),
-    repeat:Boolean = true,
-    exoPlayer: ExoPlayer = rememberExoPlayer(),
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE,
-    nextPreviousButtonPosition: NextPreviousButtonPosition = NextPreviousButtonPosition.BOTTOM,
-    useController:Boolean = true,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    progressBarUnplacedColor:Int = R.color.unplayed_color,
-    progressBarBufferedColor:Int = R.color.buffered_color,
-    progressBarScrubberColor:Int = Color.RED,
-    progressBarPlayedColor:Int = Color.RED,
-    onTitleClick:() -> Unit = {},
-    onDescriptionClick:() -> Unit = {},
-    onProgressBarVisibility:(Boolean) -> Unit = {},
-    onVideoListPositionItem: (VideoExoPlayer) -> Unit = {},
-    onFullscreen:(Boolean) -> Unit  = {},
-    onMenuClick:(() -> Unit)? = null,
-    drawerContent: @Composable ColumnScope.() -> Unit
 ) {
-    var audioTrackDialog by remember { mutableStateOf(false) }
-    var speedDialog by remember { mutableStateOf(false) }
+    val exoPlayer = rememberExoPlayer()
 
-    videoFullscreen = fullscreen
-    onFullscreen(videoFullscreen)
+    var audioTrackDialog by rememberSaveable { mutableStateOf(false) }
+    var speedDialog by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit, block = {
+        videoFullscreen = parameters.fullscreen
+        speed = parameters.speed
+        subtitle = parameters.subtitle
+        position = parameters.position
+
+        if (position == -1){
+            setPosition(
+                videoList = videoList,
+                positionButton = parameters.nextPreviousButtonPosition,
+                isIncrement = true
+            )
+        }
+    })
 
     LaunchedEffect(key1 = position, block = {
         if (position >= 0){
-            onVideoListPositionItem(videoList[position])
+            parameters.onVideoListPositionItem(videoList[position])
         }
+    })
+
+    LaunchedEffect(key1 = trackSelector, block = {
+        parameters.trackSelector = trackSelector
+    })
+
+    LaunchedEffect(key1 = speed, block = {
+        parameters.onSpeed(speed)
+    })
+
+    LaunchedEffect(key1 = videoFullscreen, block = {
+        parameters.onFullscreen(videoFullscreen)
+    })
+
+    LaunchedEffect(key1 = subtitle, block = {
+        parameters.onSubtitle(subtitle)
     })
 
     if (audioTrackDialog){
@@ -315,30 +237,18 @@ fun ExoPlayerCustom(
     }
 
     BottomDrawerExoPlayer(
-        drawerState = drawerState,
-        drawerContent = drawerContent
+        drawerState = parameters.drawerState ?: rememberBottomDrawerState(BottomDrawerValue.Closed),
+        drawerContent = parameters.drawerContent
     ){
         DisposableEffect(
             key1 = ExoPlayerAndroidView(
                 modifier = modifier,
                 videoList = videoList,
-                repeat = repeat,
+                parameters = parameters,
                 exoPlayer = exoPlayer,
-                nextPreviousButtonPosition = nextPreviousButtonPosition,
-                statePlayPause = statePlayPause,
-                useController = useController,
-                resizeMode = resizeMode,
-                progressBarUnplacedColor = progressBarUnplacedColor,
-                progressBarBufferedColor = progressBarBufferedColor,
-                progressBarScrubberColor = progressBarScrubberColor,
-                progressBarPlayedColor = progressBarPlayedColor,
-                onTitleClick = onTitleClick,
-                onDescriptionClick = onDescriptionClick,
-                onProgressBarVisibility = onProgressBarVisibility,
-                onMenuClick = onMenuClick,
                 onFullscreen = {
                     videoFullscreen = it
-                    onFullscreen(it)
+                    parameters.onFullscreen(it)
                 },
                 onAudioTrackClick = {
                     audioTrackDialog = true
@@ -356,25 +266,121 @@ fun ExoPlayerCustom(
     }
 }
 
+//@ExperimentalMaterialApi
+//@Composable
+//fun ExoPlayerCustom(
+//    modifier: Modifier = Modifier,
+//    parameters:ExoCustomParameters,
+//    videoList: List<VideoExoPlayer>,
+//    drawerState: BottomDrawerState = rememberBottomDrawerState(initialValue = BottomDrawerValue.Closed)
+//) {
+//    val exoPlayer = rememberExoPlayer()
+//
+//    var audioTrackDialog by rememberSaveable { mutableStateOf(false) }
+//    var speedDialog by rememberSaveable { mutableStateOf(false) }
+//
+//    LaunchedEffect(key1 = Unit, block = {
+//        videoFullscreen = parameters.fullscreen
+//        speed = parameters.speed
+//        subtitle = parameters.subtitle
+//        position = parameters.position
+//
+//        if (position == -1){
+//            setPosition(
+//                videoList = videoList,
+//                positionButton = parameters.nextPreviousButtonPosition,
+//                isIncrement = true
+//            )
+//        }
+//    })
+//
+//    LaunchedEffect(key1 = subtitle, block = {
+//        parameters.onSubtitle(subtitle)
+//    })
+//
+//    LaunchedEffect(key1 = videoFullscreen, block = {
+//        parameters.onFullscreen(videoFullscreen)
+//    })
+//
+//    LaunchedEffect(key1 = trackSelector, block = {
+//        parameters.trackSelector = trackSelector
+//    })
+//
+//    LaunchedEffect(key1 = position, block = {
+//        if (position >= 0){
+//            parameters.onVideoListPositionItem(videoList[position])
+//        }
+//    })
+//
+//    LaunchedEffect(key1 = speed, block = {
+//        parameters.onSpeed(speed)
+//    })
+//
+//    if (audioTrackDialog){
+//        AudioTrackDialog(
+//            audioTrack = audioTrack,
+//            onDismissRequest = {
+//                audioTrackDialog = false
+//            },
+//        ){ audioTrackItem ->
+//            trackSelector?.let {
+//                trackSelector!!.setParameters(
+//                    trackSelector!!.buildUponParameters().setPreferredAudioLanguage(audioTrack[audioTrackItem.position])
+//                )
+//            }
+//        }
+//    }
+//
+//    if (speedDialog){
+//        SpeedDialog(
+//            onDismissRequest = { speedDialog = false },
+//            onClick = {
+//                speed = it
+//                changeSpeed(
+//                    player = exoPlayer
+//                )
+//            }
+//        )
+//    }
+//
+//    BottomDrawerExoPlayer(
+//        drawerState = drawerState,
+//        drawerContent = drawerContent
+//    ){
+//        DisposableEffect(
+//            key1 = ExoPlayerAndroidView(
+//                modifier = modifier,
+//                videoList = videoList,
+//                exoPlayer = exoPlayer,
+//                parameters = parameters,
+//                onFullscreen = {
+//                    videoFullscreen = it
+//                    parameters.onFullscreen(it)
+//                },
+//                onAudioTrackClick = {
+//                    audioTrackDialog = true
+//                },
+//                onSpeedClick = {
+//                    speedDialog = true
+//                }
+//            ),
+//            effect = {
+//                onDispose {
+//                    exoPlayer.release()
+//                }
+//            }
+//        )
+//    }
+//}
+
+@ExperimentalMaterialApi
 @Composable
 private fun ExoPlayerAndroidView(
     modifier: Modifier = Modifier,
     videoList: List<VideoExoPlayer>,
-    repeat: Boolean,
+    parameters: ExoCustomParameters,
     exoPlayer: ExoPlayer,
-    nextPreviousButtonPosition: NextPreviousButtonPosition = NextPreviousButtonPosition.BOTTOM,
-    statePlayPause: VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE,
-    useController:Boolean = true,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    progressBarUnplacedColor:Int = R.color.unplayed_color,
-    progressBarBufferedColor:Int = R.color.buffered_color,
-    progressBarScrubberColor:Int = Color.RED,
-    progressBarPlayedColor:Int = Color.RED,
-    onTitleClick:() -> Unit = {},
-    onDescriptionClick:() -> Unit = {},
-    onProgressBarVisibility:(Boolean) -> Unit = {},
     onFullscreen:(Boolean) -> Unit,
-    onMenuClick:(() -> Unit)?,
     onAudioTrackClick:() -> Unit,
     onSpeedClick:() -> Unit
 ){
@@ -398,21 +404,21 @@ private fun ExoPlayerAndroidView(
             val menuView = it.findViewById<ImageView>(R.id.menu)
             val subtitleView = it.findViewById<ImageView>(R.id.subtitles)
             val speedView = it.findViewById<ImageView>(R.id.speed)
+            val pipModeView = it.findViewById<ImageView>(R.id.pip_mode)
 
-            titleView.setOnClickListener { onTitleClick() }
-            descriptionView.setOnClickListener { onDescriptionClick() }
+            titleView.setOnClickListener { parameters.onTitleClick() }
+            descriptionView.setOnClickListener { parameters.onDescriptionClick() }
 
             audioTrackView.setOnClickListener { onAudioTrackClick() }
             speedView.setOnClickListener { onSpeedClick() }
 
-            if (repeat){
+            if (parameters.repeatMode){
                 repeat(
                     exoPlayer = exoPlayer,
                     videoList = videoList,
                     titleView = titleView,
                     descriptionView = descriptionView,
-                    positionButton = nextPreviousButtonPosition,
-                    statePlayPause = statePlayPause
+                    parameters = parameters
                 )
             }
 
@@ -433,43 +439,45 @@ private fun ExoPlayerAndroidView(
                 onFullscreen(videoFullscreen)
             }
 
-            if(onMenuClick != null){
-                menuView.setOnClickListener { onMenuClick() }
+            if(parameters.onMenuClick != null){
+                menuView.setOnClickListener { parameters.onMenuClick?.let { it1 -> it1() } }
                 menuView.visibility = View.VISIBLE
             }else {
                 menuView.visibility = View.GONE
             }
 
-            setPosition(
-                videoList = videoList,
-                positionButton = nextPreviousButtonPosition,
-                isIncrement = true
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                pipModeView.visibility = View.VISIBLE
+            }else {
+                pipModeView.visibility = View.GONE
+            }
+
+            pipModeView.setOnClickListener { view ->
+                pipMode(
+                    context = view.context,
+                    playerView = playerView
+                )
+            }
 
             createPlayer(
                 videoList = videoList,
                 exoPlayer = exoPlayer,
                 titleView = titleView,
                 descriptionView = descriptionView,
-                statePlayPause = statePlayPause
+                parameters = parameters
             )
 
             playerView(
                 playerView = playerView,
                 progressBar = progressBar,
                 exoPlayer = exoPlayer,
-                useController = useController,
-                resizeMode = resizeMode,
-                onProgressBarVisibility = onProgressBarVisibility
+                parameters = parameters
             )
 
             exoProgress(
                 progressView = exoProgressBar,
                 playerView = playerView,
-                unplacedColor = progressBarUnplacedColor,
-                bufferedColor = progressBarBufferedColor,
-                scrubberColor = progressBarScrubberColor,
-                playedColor = progressBarPlayedColor
+                parameters = parameters
             )
 
             nextPreviousButton(
@@ -479,8 +487,7 @@ private fun ExoPlayerAndroidView(
                 descriptionView = descriptionView,
                 bottomNextView = bottomNextView,
                 bottomPreviousView = bottomPreviousView,
-                positionButton = nextPreviousButtonPosition,
-                statePlayPause = statePlayPause
+                parameters = parameters
             )
 
             audioTrack(
@@ -496,23 +503,13 @@ private fun ExoPlayerAndroidView(
     )
 }
 
+@ExperimentalMaterialApi
 @Composable
 private fun ExoPlayerAndroidView(
     modifier: Modifier = Modifier,
-    titleVideo:String = "",
-    descriptionVideo:String = "",
+    parameters: ExoCustomParameters,
     exoPlayer: ExoPlayer,
-    useController:Boolean = true,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    progressBarUnplacedColor:Int = R.color.unplayed_color,
-    progressBarBufferedColor:Int = R.color.buffered_color,
-    progressBarScrubberColor:Int = Color.RED,
-    progressBarPlayedColor:Int = Color.RED,
-    onTitleClick:() -> Unit = {},
-    onDescriptionClick:() -> Unit = {},
-    onProgressBarVisibility:(Boolean) -> Unit = {},
     onFullscreen: (Boolean) -> Unit,
-    onMenuClick:(() -> Unit)?,
     onAudioTrackClick:() -> Unit,
     onSpeedClick:() -> Unit
 ){
@@ -534,6 +531,7 @@ private fun ExoPlayerAndroidView(
             val audioTrackView = it.findViewById<ImageView>(R.id.audio_track)
             val subtitleView = it.findViewById<ImageView>(R.id.subtitles)
             val speedView = it.findViewById<ImageView>(R.id.speed)
+            val pipModeView = it.findViewById<ImageView>(R.id.pip_mode)
 
             audioTrackView.setOnClickListener { onAudioTrackClick() }
             speedView.setOnClickListener { onSpeedClick() }
@@ -555,38 +553,43 @@ private fun ExoPlayerAndroidView(
                 onFullscreen(videoFullscreen)
             }
 
-            if(onMenuClick != null){
-                menuView.setOnClickListener { onMenuClick() }
+            if(parameters.onMenuClick != null){
+                menuView.setOnClickListener { parameters.onMenuClick?.let { it1 -> it1() } }
                 menuView.visibility = View.VISIBLE
             }else {
                 menuView.visibility = View.GONE
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                pipModeView.visibility = View.VISIBLE
+            }else {
+                pipModeView.visibility = View.GONE
+            }
+
+            pipModeView.setOnClickListener { view ->
+                pipMode(
+                    context = view.context,
+                    playerView = playerView
+                )
             }
 
             playerView(
                 playerView = playerView,
                 progressBar = progressBar,
                 exoPlayer = exoPlayer,
-                useController = useController,
-                resizeMode = resizeMode,
-                onProgressBarVisibility = onProgressBarVisibility
+                parameters = parameters
             )
 
             exoProgress(
                 progressView = exoProgressBar,
                 playerView = playerView,
-                unplacedColor = progressBarUnplacedColor,
-                bufferedColor = progressBarBufferedColor,
-                scrubberColor = progressBarScrubberColor,
-                playedColor = progressBarPlayedColor
+                parameters = parameters
             )
 
             videoTitleDescription(
                 titleView = titleView,
                 descriptionView = descriptionView,
-                title = titleVideo,
-                description = descriptionVideo,
-                onTitleClick = onTitleClick,
-                onDescriptionClick = onDescriptionClick
+                parameters = parameters
             )
 
             audioTrack(
@@ -602,18 +605,17 @@ private fun ExoPlayerAndroidView(
     )
 }
 
+@ExperimentalMaterialApi
 private fun playerView(
     playerView:StyledPlayerView,
     progressBar: ProgressBar,
     exoPlayer:ExoPlayer,
-    useController:Boolean,
-    resizeMode:Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
-    onProgressBarVisibility:(Boolean) -> Unit = {}
+    parameters: ExoCustomParameters
 ){
     playerView.player = exoPlayer
-    playerView.useController = useController
+    playerView.useController = parameters.useController
 
-    playerView.resizeMode = resizeMode
+    playerView.resizeMode = parameters.resizeMode
 
     playerView.layoutParams = FrameLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -624,58 +626,56 @@ private fun playerView(
         override fun onPlaybackStateChanged(playbackState: Int) {
             if (playbackState == Player.STATE_BUFFERING){
                 progressBar.visibility = View.VISIBLE
-                onProgressBarVisibility(true)
+                parameters.onProgressBarVisibility(true)
             } else if (playbackState == Player.STATE_READY){
                 progressBar.visibility = View.GONE
-                onProgressBarVisibility(false)
+                parameters.onProgressBarVisibility(false)
             }
         }
     })
 }
 
+@ExperimentalMaterialApi
 private fun exoPlayer(
     exoPlayer: ExoPlayer,
-    url:String,
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE
+    parameters: ExoCustomParameters,
+    url:String
 ){
     exoPlayer.apply {
         setMediaItem(MediaItem.fromUri(url))
         prepare()
 
-        when(statePlayPause){
+        when(parameters.statePlayPause){
             VideoPlayerPausePlayState.PAUSE -> pause()
             VideoPlayerPausePlayState.PLAY -> play()
         }
     }
 }
 
+@ExperimentalMaterialApi
 private fun videoTitleDescription(
     titleView:TextView,
     descriptionView:TextView,
-    title:String,
-    description:String,
-    onTitleClick:() -> Unit,
-    onDescriptionClick:() -> Unit
+    parameters: ExoCustomParameters
 ){
-    titleView.text = title
-    descriptionView.text = description
+    titleView.text = parameters.title
+    descriptionView.text = parameters.description
 
-    titleView.setOnClickListener { onTitleClick() }
-    descriptionView.setOnClickListener { onDescriptionClick() }
+    titleView.setOnClickListener { parameters.onTitleClick() }
+    descriptionView.setOnClickListener { parameters.onDescriptionClick() }
 }
 
+@ExperimentalMaterialApi
+@SuppressLint("ResourceAsColor")
 private fun exoProgress(
     progressView:DefaultTimeBar,
     playerView:StyledPlayerView,
-    unplacedColor:Int,
-    bufferedColor:Int,
-    scrubberColor:Int,
-    playedColor:Int
+    parameters: ExoCustomParameters
 ){
-    progressView.setUnplayedColor(unplacedColor)
-    progressView.setBufferedColor(bufferedColor)
-    progressView.setScrubberColor(scrubberColor)
-    progressView.setPlayedColor(playedColor)
+    progressView.setUnplayedColor(parameters.progressBarUnplacedColor)
+    progressView.setBufferedColor(parameters.progressBarBufferedColor)
+    progressView.setScrubberColor(parameters.progressBarScrubberColor)
+    progressView.setPlayedColor(parameters.progressBarPlayedColor)
 
     progressView.addListener(object : TimeBar.OnScrubListener{
         override fun onScrubStart(timeBar: TimeBar, position: Long) {
@@ -692,6 +692,7 @@ private fun exoProgress(
     })
 }
 
+@ExperimentalMaterialApi
 private fun nextPreviousButton(
     videoList:List<VideoExoPlayer>,
     exoPlayer: ExoPlayer,
@@ -699,10 +700,9 @@ private fun nextPreviousButton(
     descriptionView:TextView,
     bottomNextView:ImageView,
     bottomPreviousView:ImageView,
-    positionButton: NextPreviousButtonPosition,
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE
+    parameters: ExoCustomParameters
 ){
-    when(positionButton){
+    when(parameters.nextPreviousButtonPosition){
         NextPreviousButtonPosition.TOP -> {
 
         }
@@ -716,24 +716,22 @@ private fun nextPreviousButton(
             bottomPreviousView.setOnClickListener {
                 nextButton(
                     videoList = videoList,
-                    positionButton = positionButton,
                     isNext = false,
                     exoPlayer = exoPlayer,
                     titleView = titleView,
                     descriptionView = descriptionView,
-                    statePlayPause = statePlayPause
+                    parameters = parameters
                 )
             }
 
             bottomNextView.setOnClickListener {
                 nextButton(
                     videoList = videoList,
-                    positionButton = positionButton,
                     isNext = true,
                     exoPlayer = exoPlayer,
                     titleView = titleView,
                     descriptionView = descriptionView,
-                    statePlayPause = statePlayPause
+                    parameters = parameters
                 )
             }
         }
@@ -744,25 +742,25 @@ private fun nextPreviousButton(
     }
 }
 
+@ExperimentalMaterialApi
 private fun nextButton(
     videoList: List<VideoExoPlayer>,
     exoPlayer: ExoPlayer,
     titleView:TextView,
     descriptionView:TextView,
-    positionButton: NextPreviousButtonPosition,
     isNext:Boolean = true,
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE
+    parameters: ExoCustomParameters
 ){
     if (isNext){
         setPosition(
             videoList = videoList,
-            positionButton = positionButton
+            positionButton = parameters.nextPreviousButtonPosition
         )
     }else{
         if (position != 0){
             setPosition(
                 videoList = videoList,
-                positionButton = positionButton,
+                positionButton = parameters.nextPreviousButtonPosition,
                 isIncrement = false
             )
         }
@@ -773,7 +771,7 @@ private fun nextButton(
         exoPlayer = exoPlayer,
         titleView = titleView,
         descriptionView = descriptionView,
-        statePlayPause = statePlayPause
+        parameters = parameters
     )
 }
 
@@ -797,31 +795,32 @@ private fun setPosition(
     }
 }
 
+@ExperimentalMaterialApi
 private fun createPlayer(
     videoList: List<VideoExoPlayer>,
     exoPlayer: ExoPlayer,
     titleView:TextView,
     descriptionView:TextView,
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE
+    parameters: ExoCustomParameters
 ){
     exoPlayer.setMediaItem(MediaItem.fromUri(videoList[position].videoUrl))
     titleView.text = videoList[position].title
     descriptionView.text = videoList[position].description
     exoPlayer.prepare()
 
-    when(statePlayPause){
+    when(parameters.statePlayPause){
         VideoPlayerPausePlayState.PAUSE -> exoPlayer.play()
         VideoPlayerPausePlayState.PLAY -> exoPlayer.pause()
     }
 }
 
+@ExperimentalMaterialApi
 private fun repeat(
     exoPlayer: ExoPlayer,
     videoList: List<VideoExoPlayer>,
     titleView: TextView,
     descriptionView: TextView,
-    positionButton: NextPreviousButtonPosition,
-    statePlayPause:VideoPlayerPausePlayState = VideoPlayerPausePlayState.PAUSE
+    parameters: ExoCustomParameters
 ){
     exoPlayer.repeatMode = Player.REPEAT_MODE_OFF
 
@@ -833,9 +832,8 @@ private fun repeat(
                     videoList = videoList,
                     titleView = titleView,
                     descriptionView = descriptionView,
-                    positionButton = positionButton,
-                    statePlayPause = statePlayPause,
-                    isNext = true
+                    isNext = true,
+                    parameters = parameters
                 )
             }
         }
@@ -844,12 +842,14 @@ private fun repeat(
 
 private fun audioTrack(
     player: ExoPlayer,
-    audioTrackView:ImageView
+    audioTrackView:ImageView? = null
 ){
-    if (audioTrack.isNotEmpty()){
-        audioTrackView.visibility = View.VISIBLE
-    }else{
-        audioTrackView.visibility = View.GONE
+    audioTrackView?.let {
+        if (audioTrack.isNotEmpty()){
+            audioTrackView.visibility = View.VISIBLE
+        }else{
+            audioTrackView.visibility = View.GONE
+        }
     }
 
     for (i in 0 until player.currentTrackGroups.length){
@@ -890,6 +890,15 @@ private fun subtitle(
 
 private fun changeSpeed(
     player: ExoPlayer
+){ player.setPlaybackSpeed(speed) }
+
+private fun pipMode(
+    context: Context,
+    playerView: StyledPlayerView
 ){
-    player.setPlaybackSpeed(speed)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val activity = context as Activity
+        activity.enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+        playerView.hideController()
+    }
 }
