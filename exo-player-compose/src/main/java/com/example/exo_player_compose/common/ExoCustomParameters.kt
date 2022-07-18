@@ -23,6 +23,7 @@ data class ExoCustomParameters(
     var fullscreen:Boolean = false,
     var repeatMode:Boolean = false,
     var subtitle:Boolean = false,
+    var youtubeDoubleTap:Boolean = false,
     var position:Int = -1,
     var speed:Float = 1f,
     var trackSelector:DefaultTrackSelector? = null,

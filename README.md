@@ -1,39 +1,39 @@
 
 ## Gradle
 
-~~~
+```groovy
 allprojects {
     repositories {
 		maven { url 'https://jitpack.io' }
 	}
 }
-~~~
+```
 
-~~~
+```groovy
 dependencies {
-    implementation 'com.github.Danila009:exo-player-compose:0.0.2'
+    implementation 'com.github.Danila009:exo-player-compose:0.1.0'
 }
-~~~
+```
 
 ## ExoPlayer
 
-~~~
+```kotlin
 val exoParameters = exoParameters {
     url = VIDEO_URL
     useController = false
     statePlayPause = VideoPlayerPausePlayState.PAUSE
 }
-~~~
+```
 
-~~~
+```kotlin
 ExoPlayer(
     parameters = exoParameters
 )
-~~~
+```
 
 ## Custom ExoPlayer (video item)
 
-~~~
+```kotlin
 val exoParameters = exoCustomParameters {
                     
     useController = true
@@ -50,10 +50,10 @@ val exoParameters = exoCustomParameters {
         Log.d("onFullscreen",it.toString())
     }
 }
-~~~
+```
 
 
-~~~
+```kotlin
 ExoPlayerCustom(
     modifier = Modifier
         .fillMaxWidth()
@@ -61,11 +61,11 @@ ExoPlayerCustom(
     url = VIDEO_URL,
     parameters = exoParameters
 )
-~~~
+```
 
 ## Custom ExoPlayer (video list)
 
-~~~
+```kotlin
 ExoPlayerCustom(
     modifier = Modifier
         .fillMaxWidth()
@@ -73,7 +73,22 @@ ExoPlayerCustom(
     videoList = videoList,
     parameters = exoParameters
 )
-~~~
+```
+
+## You Tube Double Tap
+
+Documentation[DoubleTapPlayerView]
+
+```kotlin
+val exoParameters = exoCustomParameters {
+                   
+    youtubeDoubleTap = true
+}
+```
+
+## PreviewSeekBar
+
+Documentation[PreviewSeekBar]
 
 ## License
 
@@ -88,3 +103,6 @@ the Free Software Foundation, either version 3 of the License, or
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ~~~
+
+[DoubleTapPlayerView]: https://github.com/vkay94/DoubleTapPlayerView
+[PreviewSeekBar] : https://github.com/rubensousa/PreviewSeekBar

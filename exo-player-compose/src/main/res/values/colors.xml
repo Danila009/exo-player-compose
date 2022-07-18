@@ -10,4 +10,6 @@
 
     <color name="unplayed_color">#45434E</color>
     <color name="buffered_color">#95989F</color>
+
+    <color name="colorAccent">#448AFF</color>
 </resources>

@@ -57,6 +57,8 @@ class MainActivity : ComponentActivity() {
 
                     this.statePlayPause = statePlayPause
 
+                    youtubeDoubleTap = true
+
                     onProgressBarVisibility = {
                         Log.d("onProgressBarVisibility",it.toString())
                     }

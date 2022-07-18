@@ -109,15 +109,43 @@
         app:layout_constraintTop_toTopOf="@+id/slash"
         app:layout_constraintBottom_toBottomOf="@+id/slash"/>
 
-    <com.google.android.exoplayer2.ui.DefaultTimeBar
+    <FrameLayout
+        android:id="@+id/previewFrameLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/video_frame"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/exo_progress"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.35"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/preview_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:ignore="ContentDescription" />
+
+    </FrameLayout>
+
+    <com.example.exo_player_compose.previewSeekBar.exoplayer.PreviewExoSeekBar
         android:id="@+id/exo_progress"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         app:unplayed_color="@color/unplayed_color"
         app:buffered_color="@color/buffered_color"
         app:played_color="#FF0000"
         app:scrubber_color="#FF0000"
+        app:previewAnimationEnabled="true"
+        app:previewFrameLayout="@id/previewFrameLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/audio_track"/>

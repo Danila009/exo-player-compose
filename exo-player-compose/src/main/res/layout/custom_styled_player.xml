@@ -6,17 +6,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.exoplayer2.ui.StyledPlayerView
-        android:id="@+id/player_view"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/cardview_dark_background"
-        app:controller_layout_id="@layout/custom_controller"
-        app:hide_on_touch="true"
-        app:resize_mode="fill"
-        app:show_timeout="5000"
-        app:use_controller="true"
-        android:layout_gravity="center"/>
+        android:layout_height="match_parent">
+
+        <com.example.exo_player_compose.doubleTapPlayerView.DoubleTapPlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:hide_on_touch="true"
+            app:resize_mode="fill"
+            app:show_timeout="5000"
+            app:use_controller="true"
+            app:controller_layout_id="@layout/custom_controller"
+            app:dtpv_controller="@+id/youtube_overlay" />
+
+        <com.example.exo_player_compose.doubleTapPlayerView.youtube.YouTubeOverlay
+            android:id="@+id/youtube_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            app:yt_playerView="@+id/player_view" />
+
+<!--        android:background="#77000000"-->
+
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"

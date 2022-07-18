@@ -23,7 +23,10 @@ import com.example.exo_player_compose.R
 import com.example.exo_player_compose.common.ExoCustomParameters
 import com.example.exo_player_compose.dialogs.AudioTrackDialog
 import com.example.exo_player_compose.dialogs.SpeedDialog
+import com.example.exo_player_compose.doubleTapPlayerView.DoubleTapPlayerView
+import com.example.exo_player_compose.doubleTapPlayerView.youtube.YouTubeOverlay
 import com.example.exo_player_compose.model.VideoExoPlayer
+import com.example.exo_player_compose.previewSeekBar.exoplayer.PreviewExoSeekBar
 import com.example.exo_player_compose.state.NextPreviousButtonPosition
 import com.example.exo_player_compose.state.VideoPlayerPausePlayState
 import com.google.android.exoplayer2.C
@@ -32,7 +35,6 @@ import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.DefaultTimeBar
-import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.ui.TimeBar
 import java.util.*
 import kotlin.collections.ArrayList
@@ -266,113 +268,6 @@ fun ExoPlayerCustom(
     }
 }
 
-//@ExperimentalMaterialApi
-//@Composable
-//fun ExoPlayerCustom(
-//    modifier: Modifier = Modifier,
-//    parameters:ExoCustomParameters,
-//    videoList: List<VideoExoPlayer>,
-//    drawerState: BottomDrawerState = rememberBottomDrawerState(initialValue = BottomDrawerValue.Closed)
-//) {
-//    val exoPlayer = rememberExoPlayer()
-//
-//    var audioTrackDialog by rememberSaveable { mutableStateOf(false) }
-//    var speedDialog by rememberSaveable { mutableStateOf(false) }
-//
-//    LaunchedEffect(key1 = Unit, block = {
-//        videoFullscreen = parameters.fullscreen
-//        speed = parameters.speed
-//        subtitle = parameters.subtitle
-//        position = parameters.position
-//
-//        if (position == -1){
-//            setPosition(
-//                videoList = videoList,
-//                positionButton = parameters.nextPreviousButtonPosition,
-//                isIncrement = true
-//            )
-//        }
-//    })
-//
-//    LaunchedEffect(key1 = subtitle, block = {
-//        parameters.onSubtitle(subtitle)
-//    })
-//
-//    LaunchedEffect(key1 = videoFullscreen, block = {
-//        parameters.onFullscreen(videoFullscreen)
-//    })
-//
-//    LaunchedEffect(key1 = trackSelector, block = {
-//        parameters.trackSelector = trackSelector
-//    })
-//
-//    LaunchedEffect(key1 = position, block = {
-//        if (position >= 0){
-//            parameters.onVideoListPositionItem(videoList[position])
-//        }
-//    })
-//
-//    LaunchedEffect(key1 = speed, block = {
-//        parameters.onSpeed(speed)
-//    })
-//
-//    if (audioTrackDialog){
-//        AudioTrackDialog(
-//            audioTrack = audioTrack,
-//            onDismissRequest = {
-//                audioTrackDialog = false
-//            },
-//        ){ audioTrackItem ->
-//            trackSelector?.let {
-//                trackSelector!!.setParameters(
-//                    trackSelector!!.buildUponParameters().setPreferredAudioLanguage(audioTrack[audioTrackItem.position])
-//                )
-//            }
-//        }
-//    }
-//
-//    if (speedDialog){
-//        SpeedDialog(
-//            onDismissRequest = { speedDialog = false },
-//            onClick = {
-//                speed = it
-//                changeSpeed(
-//                    player = exoPlayer
-//                )
-//            }
-//        )
-//    }
-//
-//    BottomDrawerExoPlayer(
-//        drawerState = drawerState,
-//        drawerContent = drawerContent
-//    ){
-//        DisposableEffect(
-//            key1 = ExoPlayerAndroidView(
-//                modifier = modifier,
-//                videoList = videoList,
-//                exoPlayer = exoPlayer,
-//                parameters = parameters,
-//                onFullscreen = {
-//                    videoFullscreen = it
-//                    parameters.onFullscreen(it)
-//                },
-//                onAudioTrackClick = {
-//                    audioTrackDialog = true
-//                },
-//                onSpeedClick = {
-//                    speedDialog = true
-//                }
-//            ),
-//            effect = {
-//                onDispose {
-//                    exoPlayer.release()
-//                }
-//            }
-//        )
-//    }
-//}
-
 @ExperimentalMaterialApi
 @Composable
 private fun ExoPlayerAndroidView(
@@ -390,14 +285,17 @@ private fun ExoPlayerAndroidView(
             View.inflate(it, R.layout.custom_styled_player, null)
         },
         update = {
-            val playerView = it.findViewById<StyledPlayerView>(R.id.player_view)
+            val playerView = it.findViewById<DoubleTapPlayerView>(R.id.player_view)
             val progressBar = it.findViewById<ProgressBar>(R.id.progress_bar)
-            val exoProgressBar = it.findViewById<DefaultTimeBar>(R.id.exo_progress)
+            val exoProgressBar = it.findViewById<PreviewExoSeekBar>(R.id.exo_progress)
             val titleView = it.findViewById<TextView>(R.id.video_title)
             val descriptionView = it.findViewById<TextView>(R.id.video_description)
 
             val bottomNextView = it.findViewById<ImageView>(R.id.bottom_skip_next)
             val bottomPreviousView = it.findViewById<ImageView>(R.id.bottom_skip_previous)
+
+            val exoRew = it.findViewById<ImageView>(R.id.exo_rew)
+            val exoFfWd = it.findViewById<ImageView>(R.id.exo_ffwd)
 
             val fullscreenView = it.findViewById<ImageView>(R.id.fullscreen)
             val audioTrackView = it.findViewById<ImageView>(R.id.audio_track)
@@ -405,6 +303,10 @@ private fun ExoPlayerAndroidView(
             val subtitleView = it.findViewById<ImageView>(R.id.subtitles)
             val speedView = it.findViewById<ImageView>(R.id.speed)
             val pipModeView = it.findViewById<ImageView>(R.id.pip_mode)
+
+            val previewImageView = it.findViewById<ImageView>(R.id.preview_image_view)
+
+            val youtubeOverlay = it.findViewById<YouTubeOverlay>(R.id.youtube_overlay)
 
             titleView.setOnClickListener { parameters.onTitleClick() }
             descriptionView.setOnClickListener { parameters.onDescriptionClick() }
@@ -459,6 +361,22 @@ private fun ExoPlayerAndroidView(
                 )
             }
 
+            when(parameters.youtubeDoubleTap){
+                true -> {
+                    exoRew.visibility = View.GONE
+                    exoFfWd.visibility = View.GONE
+
+                    doubleTapEnable(
+                        youtubeOverlay = youtubeOverlay,
+                        exoPlayer = exoPlayer
+                    )
+                }
+                false -> {
+                    exoRew.visibility = View.VISIBLE
+                    exoFfWd.visibility = View.VISIBLE
+                }
+            }
+
             createPlayer(
                 videoList = videoList,
                 exoPlayer = exoPlayer,
@@ -474,11 +392,17 @@ private fun ExoPlayerAndroidView(
                 parameters = parameters
             )
 
-            exoProgress(
-                progressView = exoProgressBar,
-                playerView = playerView,
-                parameters = parameters
+            previewExoSeekBar(
+                previewImageView = previewImageView,
+                previewExoBar = exoProgressBar,
+                player = exoPlayer
             )
+
+//            exoProgress(
+//                progressView = exoProgressBar,
+//                playerView = playerView,
+//                parameters = parameters
+//            )
 
             nextPreviousButton(
                 videoList = videoList,
@@ -519,11 +443,14 @@ private fun ExoPlayerAndroidView(
             View.inflate(it, R.layout.custom_styled_player, null)
         },
         update = {
-            val playerView = it.findViewById<StyledPlayerView>(R.id.player_view)
+            val playerView = it.findViewById<DoubleTapPlayerView>(R.id.player_view)
             val progressBar = it.findViewById<ProgressBar>(R.id.progress_bar)
-            val exoProgressBar = it.findViewById<DefaultTimeBar>(R.id.exo_progress)
+            val exoProgressBar = it.findViewById<PreviewExoSeekBar>(R.id.exo_progress)
             val titleView = it.findViewById<TextView>(R.id.video_title)
             val descriptionView = it.findViewById<TextView>(R.id.video_description)
+
+            val exoRew = it.findViewById<ImageView>(R.id.exo_rew)
+            val exoFfWd = it.findViewById<ImageView>(R.id.exo_ffwd)
 
             val fullscreenView = it.findViewById<ImageView>(R.id.fullscreen)
 
@@ -532,6 +459,10 @@ private fun ExoPlayerAndroidView(
             val subtitleView = it.findViewById<ImageView>(R.id.subtitles)
             val speedView = it.findViewById<ImageView>(R.id.speed)
             val pipModeView = it.findViewById<ImageView>(R.id.pip_mode)
+
+            val previewImageView = it.findViewById<ImageView>(R.id.preview_image_view)
+
+            val youtubeOverlay = it.findViewById<YouTubeOverlay>(R.id.youtube_overlay)
 
             audioTrackView.setOnClickListener { onAudioTrackClick() }
             speedView.setOnClickListener { onSpeedClick() }
@@ -573,6 +504,22 @@ private fun ExoPlayerAndroidView(
                 )
             }
 
+            when(parameters.youtubeDoubleTap){
+                true -> {
+                    exoRew.visibility = View.GONE
+                    exoFfWd.visibility = View.GONE
+
+                    doubleTapEnable(
+                        youtubeOverlay = youtubeOverlay,
+                        exoPlayer = exoPlayer
+                    )
+                }
+                false -> {
+                    exoRew.visibility = View.VISIBLE
+                    exoFfWd.visibility = View.VISIBLE
+                }
+            }
+
             playerView(
                 playerView = playerView,
                 progressBar = progressBar,
@@ -580,10 +527,16 @@ private fun ExoPlayerAndroidView(
                 parameters = parameters
             )
 
-            exoProgress(
-                progressView = exoProgressBar,
-                playerView = playerView,
-                parameters = parameters
+//            exoProgress(
+//                progressView = exoProgressBar,
+//                playerView = playerView,
+//                parameters = parameters
+//            )
+
+            previewExoSeekBar(
+                previewImageView = previewImageView,
+                previewExoBar = exoProgressBar,
+                player = exoPlayer
             )
 
             videoTitleDescription(
@@ -607,7 +560,7 @@ private fun ExoPlayerAndroidView(
 
 @ExperimentalMaterialApi
 private fun playerView(
-    playerView:StyledPlayerView,
+    playerView:DoubleTapPlayerView,
     progressBar: ProgressBar,
     exoPlayer:ExoPlayer,
     parameters: ExoCustomParameters
@@ -669,7 +622,7 @@ private fun videoTitleDescription(
 @SuppressLint("ResourceAsColor")
 private fun exoProgress(
     progressView:DefaultTimeBar,
-    playerView:StyledPlayerView,
+    playerView:DoubleTapPlayerView,
     parameters: ExoCustomParameters
 ){
     progressView.setUnplayedColor(parameters.progressBarUnplacedColor)
@@ -894,11 +847,45 @@ private fun changeSpeed(
 
 private fun pipMode(
     context: Context,
-    playerView: StyledPlayerView
+    playerView: DoubleTapPlayerView
 ){
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val activity = context as Activity
         activity.enterPictureInPictureMode(PictureInPictureParams.Builder().build())
         playerView.hideController()
     }
+}
+
+private fun doubleTapEnable(
+    youtubeOverlay: YouTubeOverlay,
+    exoPlayer:ExoPlayer
+){
+    youtubeOverlay.performListener(object : YouTubeOverlay.PerformListener {
+        override fun onAnimationStart() {
+            youtubeOverlay.visibility = View.VISIBLE
+        }
+
+        override fun onAnimationEnd() {
+            youtubeOverlay.visibility = View.GONE
+        }
+    })
+
+    youtubeOverlay.player(exoPlayer)
+}
+
+private fun previewExoSeekBar(
+    previewImageView:ImageView,
+    previewExoBar:PreviewExoSeekBar,
+    player: ExoPlayer
+){
+    val previewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg"
+
+    val exoPlayerManager = ExoPlayerManager(
+        previewUrl = previewUrl,
+        previewImageView = previewImageView,
+        player = player
+    )
+
+    previewExoBar.setPreviewLoader(exoPlayerManager)
+    previewExoBar.addOnScrubListener(exoPlayerManager)
 }
