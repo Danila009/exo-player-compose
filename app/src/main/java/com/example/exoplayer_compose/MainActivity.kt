@@ -11,10 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.exo_player_compose.common.exoCustomParameters
-import com.example.exo_player_compose.exoPlayer.v1.ExoPlayerCustom
-import com.example.exo_player_compose.model.VideoExoPlayer
-import com.example.exo_player_compose.state.VideoPlayerPausePlayState
+import com.example.exo_player_compose.exoPlayerCompose.ExoPlayerCustom
+import com.example.exo_player_compose.exoPlayerCompose.model.*
+import com.example.exo_player_compose.exoPlayerCompose.state.VideoPlayerPausePlayState
+import com.example.exo_player_compose.exoPlayerCompose.type.ExoFilterType
 import com.example.exoplayer_compose.ui.theme.ExoPlayerComposeTheme
 
 private const val VIDEO_URL = "https://firebasestorage.googleapis.com/v0/b/fir-939ca.appspot.com/o/videos%2FSnatch.2000.iPad.1024x.leonardo59.BDRip.mp4?alt=media&token=bd9aebf3-c92f-4c6c-96cd-6ad4d8fb2a33"
@@ -57,7 +57,18 @@ class MainActivity : ComponentActivity() {
 
                     this.statePlayPause = statePlayPause
 
-                    youtubeDoubleTap = true
+                    doubleTapParameters = doubleTapParameters {
+                        enabled = true
+                    }
+
+                    previewSeekBarParameters = previewSeekBarParameters {
+                        enabled = true
+                        previewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg"
+                    }
+
+                    exoFilterParameters = exoFilterParameters {
+                        type = ExoFilterType.INVERT
+                    }
 
                     onProgressBarVisibility = {
                         Log.d("onProgressBarVisibility",it.toString())

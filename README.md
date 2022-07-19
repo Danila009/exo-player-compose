@@ -1,3 +1,8 @@
+# ExoPlayerCompose
+
+[![Platform](https://img.shields.io/badge/platform-android-green.svg)](http://developer.android.com/index.html)
+<img src="https://img.shields.io/badge/license-MIT-green.svg?style=flat">
+[![API](https://img.shields.io/badge/API-16%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=16)
 
 ## Gradle
 
@@ -81,14 +86,47 @@ ExoPlayerCustom(
 
 ```kotlin
 val exoParameters = exoCustomParameters {
-                   
-    youtubeDoubleTap = true
+    
+    
+    doubleTapParameters = doubleTapParameters {
+        enabled = true
+
+        seekSeconds = 10
+
+        animationDuration = 650
+    }
+    
 }
 ```
 
 ## Preview Seek Bar
 
 [Documentation][PreviewSeekBar]
+
+```kotlin
+val exoParameters = exoCustomParameters {
+
+    previewSeekBarParameters = previewSeekBarParameters {
+        enabled = true
+        previewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg"
+    }
+    
+}
+```
+
+## Video Filters
+
+[Documentation][ExoPlayerFilter]
+
+```kotlin
+val exoParameters = exoCustomParameters {
+
+    exoFilterParameters = exoFilterParameters {
+        type = ExoFilterType.INVERT
+    }
+    
+}
+```
 
 ## License
 
@@ -111,3 +149,4 @@ limitations under the License.
 
 [DoubleTapPlayerView]: https://github.com/vkay94/DoubleTapPlayerView
 [PreviewSeekBar]: https://github.com/rubensousa/PreviewSeekBar
+[ExoPlayerFilter]: https://github.com/MasayukiSuda/ExoPlayerFilter
