@@ -4,18 +4,20 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.example.exo_player_compose.exoPlayerCompose.ExoPlayerCustom
+import androidx.compose.ui.platform.LocalContext
+import com.example.exo_player_compose.exoPlayerCompose.customController.ExoPlayerCustomController
+import com.example.exo_player_compose.exoPlayerCompose.customController.exoPlayer
+import com.example.exo_player_compose.exoPlayerCompose.customController.styledPlayerView
 import com.example.exo_player_compose.exoPlayerCompose.model.*
 import com.example.exo_player_compose.exoPlayerCompose.state.VideoPlayerPausePlayState
 import com.example.exo_player_compose.exoPlayerCompose.type.ExoFilterType
 import com.example.exoplayer_compose.ui.theme.ExoPlayerComposeTheme
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
 
 private const val VIDEO_URL = "https://firebasestorage.googleapis.com/v0/b/fir-939ca.appspot.com/o/videos%2FSnatch.2000.iPad.1024x.leonardo59.BDRip.mp4?alt=media&token=bd9aebf3-c92f-4c6c-96cd-6ad4d8fb2a33"
 private const val VIDEO_2_URL = "https://api.cfif31.ru/storeApp/api/Product/2/Video.mp4"
@@ -83,13 +85,32 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                ExoPlayerCustom(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    url = VIDEO_2_URL,
-                    parameters = exoParameters
-                )
+
+                val context = LocalContext.current
+
+                val exoPlayer = exoPlayer {
+                    setMediaItem(MediaItem.fromUri(VIDEO_2_URL))
+                    prepare()
+                    play()
+                }
+
+                ExoPlayerCustomController(
+                    styledPlayerView = {
+                        player = exoPlayer
+
+                        this.useController = true
+                    }
+                ) {
+                    Text(text = "Test")
+                }
+
+//                ExoPlayerCustom(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(300.dp),
+//                    url = VIDEO_2_URL,
+//                    parameters = exoParameters
+//                )
             }
         }
     }

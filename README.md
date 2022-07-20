@@ -20,6 +20,12 @@ dependencies {
 }
 ```
 
+## Manifest
+
+```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+```
+
 ## ExoPlayer
 
 ```kotlin
@@ -34,6 +40,28 @@ val exoParameters = exoParameters {
 ExoPlayer(
     parameters = exoParameters
 )
+```
+
+## Exo Player Custom Controller
+
+```kotlin
+val exoPlayer = exoPlayer {
+    setMediaItem(MediaItem.fromUri(VIDEO_URL))
+    prepare()
+    play()
+}
+```
+
+```kotlin
+ExoPlayerCustomController(
+    styledPlayerView = {
+        player = exoPlayer
+
+        this.useController = true
+    }
+) {
+    Text(text = "Test")
+}
 ```
 
 ## Custom ExoPlayer (video item)
