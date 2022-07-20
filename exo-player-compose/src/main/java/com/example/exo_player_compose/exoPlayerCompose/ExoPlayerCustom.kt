@@ -788,6 +788,9 @@ private fun createPlayer(
     descriptionView: TextView,
     parameters: ExoCustomParameters,
 ){
+    if (position < 0)
+        position = 0
+
     exoPlayer.setMediaItem(MediaItem.fromUri(videoList[position].videoUrl))
     titleView.text = videoList[position].title
     descriptionView.text = videoList[position].description

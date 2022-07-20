@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
@@ -14,10 +15,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.exo_player_compose.exoPlayerCompose.ExoPlayerCustom
 import com.example.exo_player_compose.exoPlayerCompose.customController.DefaultTimeBar
 import com.example.exo_player_compose.exoPlayerCompose.customController.ExoPlayerCustomController
 import com.example.exo_player_compose.exoPlayerCompose.customController.exoPlayer
 import com.example.exo_player_compose.exoPlayerCompose.model.*
+import com.example.exo_player_compose.exoPlayerCompose.state.NextPreviousButtonPosition
 import com.example.exo_player_compose.exoPlayerCompose.state.VideoPlayerPausePlayState
 import com.example.exo_player_compose.exoPlayerCompose.type.ExoFilterType
 import com.example.exoplayer_compose.ui.theme.ExoPlayerComposeTheme
@@ -63,6 +66,8 @@ class MainActivity : ComponentActivity() {
 
                     this.statePlayPause = statePlayPause
 
+                    nextPreviousButtonPosition  = NextPreviousButtonPosition.BOTTOM
+                    
                     doubleTapParameters = doubleTapParameters {
                         enabled = true
                     }
@@ -98,34 +103,34 @@ class MainActivity : ComponentActivity() {
                     play()
                 }
 
-                ExoPlayerCustomController(
-                    styledPlayerView = {
-                        player = exoPlayer
+//                ExoPlayerCustomController(
+//                    styledPlayerView = {
+//                        player = exoPlayer
+//
+//                        this.useController = true
+//                    }
+//                ) {
+//                    Column {
+//                        Text(text = "Test")
+//
+//                        DefaultTimeBar(
+//                            modifier = Modifier
+//                                .padding(10.dp)
+//                                .fillMaxWidth(),
+//                            player = exoPlayer
+//                        ){
+//
+//                        }
+//                    }
+//                }
 
-                        this.useController = true
-                    }
-                ) {
-                    Column {
-                        Text(text = "Test")
-
-                        DefaultTimeBar(
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth(),
-                            player = exoPlayer
-                        ){
-
-                        }
-                    }
-                }
-
-//                ExoPlayerCustom(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(300.dp),
-//                    url = VIDEO_2_URL,
-//                    parameters = exoParameters
-//                )
+                ExoPlayerCustom(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    videoList = videoList,
+                    parameters = exoParameters
+                )
             }
         }
     }
