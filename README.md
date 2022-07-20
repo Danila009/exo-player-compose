@@ -16,7 +16,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.Danila009:exo-player-compose:0.1.0'
+    implementation 'com.github.Danila009:exo-player-compose:0.2.0'
 }
 ```
 
