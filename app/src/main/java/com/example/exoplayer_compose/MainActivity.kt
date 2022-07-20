@@ -4,19 +4,23 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.example.exo_player_compose.exoPlayerCompose.customController.DefaultTimeBar
 import com.example.exo_player_compose.exoPlayerCompose.customController.ExoPlayerCustomController
 import com.example.exo_player_compose.exoPlayerCompose.customController.exoPlayer
-import com.example.exo_player_compose.exoPlayerCompose.customController.styledPlayerView
 import com.example.exo_player_compose.exoPlayerCompose.model.*
 import com.example.exo_player_compose.exoPlayerCompose.state.VideoPlayerPausePlayState
 import com.example.exo_player_compose.exoPlayerCompose.type.ExoFilterType
 import com.example.exoplayer_compose.ui.theme.ExoPlayerComposeTheme
-import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 
 private const val VIDEO_URL = "https://firebasestorage.googleapis.com/v0/b/fir-939ca.appspot.com/o/videos%2FSnatch.2000.iPad.1024x.leonardo59.BDRip.mp4?alt=media&token=bd9aebf3-c92f-4c6c-96cd-6ad4d8fb2a33"
@@ -101,7 +105,18 @@ class MainActivity : ComponentActivity() {
                         this.useController = true
                     }
                 ) {
-                    Text(text = "Test")
+                    Column {
+                        Text(text = "Test")
+
+                        DefaultTimeBar(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth(),
+                            player = exoPlayer
+                        ){
+
+                        }
+                    }
                 }
 
 //                ExoPlayerCustom(
