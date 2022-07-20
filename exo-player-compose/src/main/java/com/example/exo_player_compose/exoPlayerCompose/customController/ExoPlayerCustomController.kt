@@ -1,7 +1,6 @@
 package com.example.exo_player_compose.exoPlayerCompose.customController
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -116,28 +115,10 @@ fun DefaultTimeBar(
     val position by rememberSaveable{ mutableStateOf(player?.currentPosition ?: 0L) }
     val bufferedPosition by rememberSaveable{ mutableStateOf(player?.contentBufferedPosition ?: 0L) }
 
-    LaunchedEffect(key1 = position, block = {
-        Log.e("Position", position.toString())
-    })
-
-    LaunchedEffect(key1 = bufferedPosition, block = {
-        Log.e("Position", bufferedPosition.toString())
-    })
-
     AndroidView(
         modifier = modifier,
         factory = {
-            DefaultTimeBar(it).apply(block).apply {
-                setPosition(100000L)
-                setBufferedPosition(10000000L)
-
-                setBackgroundColor(android.R.color.holo_red_dark)
-
-                setUnplayedColor(R.color.purple_700)
-                setBufferedColor(R.color.colorAccent)
-                setPlayedColor(R.color.teal_700)
-                setScrubberColor(android.R.color.holo_red_dark)
-            }
+            DefaultTimeBar(it).apply(block)
         }
     )
 }
